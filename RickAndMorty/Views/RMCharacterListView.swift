@@ -40,6 +40,7 @@ final class RMCharacterListView: UIView {
         setUpCollection()
         spinner.startAnimating()
         viewModel.fetchCharacters()
+        viewModel.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -63,12 +64,15 @@ final class RMCharacterListView: UIView {
     private func setUpCollection() {
         collection.dataSource = viewModel
         collection.delegate = viewModel
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.spinner.stopAnimating()
-            
-            UIView.animate(withDuration: 0.3) {
-                self.collection.alpha = 1
-            }
+    }
+}
+
+extension RMCharacterListView: RMCharacterListVoewViewModelDelegate {
+    func didLoadInitialCharacters() {
+        spinner.stopAnimating()
+        collection.reloadData()
+        UIView.animate(withDuration: 0.3) {
+            self.collection.alpha = 1
         }
     }
 }

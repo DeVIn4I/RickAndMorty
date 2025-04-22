@@ -12,7 +12,8 @@ final class RMCharacterCollectionViewCell: UICollectionViewCell {
     
     private let imageView: UIImageView = {
         let view = UIImageView()
-        view.contentMode = .scaleAspectFit
+        view.contentMode = .scaleAspectFill
+        view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -38,6 +39,11 @@ final class RMCharacterCollectionViewCell: UICollectionViewCell {
         contentView.backgroundColor = .secondarySystemBackground
         contentView.addSubviews(imageView, nameLabel, statusLabel)
         addConstraints()
+        setUpLayer()
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) {
+            (self: Self, previousTraitCollection: UITraitCollection) in
+            self.setUpLayer()
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -51,19 +57,24 @@ final class RMCharacterCollectionViewCell: UICollectionViewCell {
         statusLabel.text = nil
     }
     
+    private func setUpLayer() {
+        contentView.layer.cornerRadius = 8
+        contentView.layer.shadowColor = UIColor.label.cgColor
+        contentView.layer.shadowOpacity = 0.3
+        contentView.layer.shadowOffset = CGSize(width: -4, height: 4)}
+    
     private func addConstraints() {
         NSLayoutConstraint.activate([
-            statusLabel.heightAnchor.constraint(equalToConstant: 40),
-            nameLabel.heightAnchor.constraint(equalToConstant: 40),
+            statusLabel.heightAnchor.constraint(equalToConstant: 30),
+            nameLabel.heightAnchor.constraint(equalToConstant: 30),
             
-            statusLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            statusLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
-            
-            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
-            
+            statusLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            statusLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
             statusLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3),
-            nameLabel.bottomAnchor.constraint(equalTo: statusLabel.topAnchor, constant: -3),
+            
+            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            nameLabel.bottomAnchor.constraint(equalTo: statusLabel.topAnchor),
             
             imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
