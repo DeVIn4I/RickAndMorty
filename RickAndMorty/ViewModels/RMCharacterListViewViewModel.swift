@@ -9,6 +9,7 @@ import UIKit
 
 protocol RMCharacterListVoewViewModelDelegate: AnyObject {
     func didLoadInitialCharacters()
+    func didSelectCharacet(_ character: RMCharacter)
 }
 
 final class RMCharacterListViewViewModel: NSObject {
@@ -27,9 +28,11 @@ final class RMCharacterListViewViewModel: NSObject {
         }
     }
     private var cellViewModels: [RMCharacterCollectionViewCellViewModel] = []
+    private var apiInfo: RMGetAllCharactersResponse.Info?
     
     public weak var delegate: RMCharacterListVoewViewModelDelegate?
     
+    ///  Fetch initial set of characters(20)
     public func fetchCharacters() {
         RMService.shared.execute(
             .listCharactersRequest,
@@ -38,7 +41,9 @@ final class RMCharacterListViewViewModel: NSObject {
             switch result {
             case .success(let responseModel):
                 let results = responseModel.results
+                let info = responseModel.info
                 self?.characters = results
+                self?.apiInfo = info
                 
                 DispatchQueue.main.async {
                     self?.delegate?.didLoadInitialCharacters()
@@ -47,6 +52,14 @@ final class RMCharacterListViewViewModel: NSObject {
                 print(String(describing: error))
             }
         }
+    }
+    
+    public var shouldShowLoadMoreIndicator: Bool {
+        apiInfo?.next != nil
+    }
+    
+    public func fetchAdditionalCharacters() {
+        
     }
 }
 
@@ -72,5 +85,19 @@ extension RMCharacterListViewViewModel: UICollectionViewDelegateFlowLayout {
         let bounds = UIScreen.main.bounds
         let width = (bounds.width - 30) / 2
         return CGSize(width: width, height: width * 1.5)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        let character = characters[indexPath.row]
+        delegate?.didSelectCharacet(character)
+    }
+}
+
+extension RMCharacterListViewViewModel: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard shouldShowLoadMoreIndicator else { return }
+        
+        
     }
 }
