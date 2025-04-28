@@ -10,9 +10,11 @@ import UIKit
 final class RMCharacterDetailViewController: UIViewController {
     
     private let viewModel: RMCharacterDetailViewViewModel
+    private let detailView: RMCharacterDetailView
     
     init(viewModel: RMCharacterDetailViewViewModel) {
         self.viewModel = viewModel
+        self.detailView = RMCharacterDetailView(frame: .zero, viewModel: viewModel)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -24,5 +26,56 @@ final class RMCharacterDetailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         navigationItem.title = viewModel.title
+        
+        view.addSubview(detailView)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .action,
+            target: self,
+            action: #selector(didTapShare)
+        )
+        addConstraints()
+        detailView.collectionView?.delegate = self
+        detailView.collectionView?.dataSource = self
     }
+    
+    private func addConstraints() {
+        NSLayoutConstraint.activate([
+            detailView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            detailView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            detailView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            detailView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+    }
+    
+    @objc
+    private func didTapShare() {
+        print(#function)
+    }
+}
+
+extension RMCharacterDetailViewController: UICollectionViewDataSource {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        viewModel.sections.count
+    }
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        10
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
+        
+        switch indexPath.section {
+        case 0: cell.backgroundColor = .systemPink
+        case 1: cell.backgroundColor = .systemPurple
+        case 2: cell.backgroundColor = .systemGreen
+        default:
+            break
+        }
+        return cell
+    }
+}
+
+extension RMCharacterDetailViewController: UICollectionViewDelegate {
+    
 }
